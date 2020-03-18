@@ -6,5 +6,7 @@
 __pycache__/*
 
 *.log
-
+*.spec
+dist/*
+build/*
 

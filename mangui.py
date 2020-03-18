@@ -4,14 +4,16 @@ from WebHelp import *
 import collections
 from threading import Thread
 import time
+from htmlbs import *
 
 
 class MainWindows(tk.Tk):
 
     TREESIZE = 30
-    QUEDELAY = 120
+    QUEDELAY = 30
     b_continueget = True
     __wh = ''
+    __hb = HtmlBs()
     time_cost = 0.0
     index_list = []
     num_dict = collections.OrderedDict()
@@ -28,7 +30,7 @@ class MainWindows(tk.Tk):
         self.__wh.configWeb()
         th_get = Thread(target=self.data_loop)
         th_get.setDaemon(True)
-        # th_get.start()
+        th_get.start()
 
     def ini_ui(self):
         frame = tk.Frame(self, width=self.__w, height=self.__h)
@@ -80,25 +82,46 @@ class MainWindows(tk.Tk):
 
     def get_data(self):
         tm_start = time.time()
-        soup = self.__wh.getPage()
-        inlist = self.__wh.getIndex(soup)
+        html = self.__wh.getPage()
+        soup = self.__hb.getSoup(html)
+        inlist = self.__hb.getIndex(soup)
+
         if inlist is not None:
             self.index_list = inlist
-        nudict = self.__wh.getNum(soup)
+        nudict = self.__hb.getNum(soup)
         if nudict is not None:
             self.num_dict = nudict
         tm_end = time.time()
         self.time_cost = tm_end - tm_start
+        self.__wh.reflash_web()
 
     def data_loop(self):
+        i = 0
         while(self.b_continueget):
+            i += 1
+            print('loop count:%d' % i)
             self.get_data()
+            print(self.index_list)
+            print(self.num_dict)
+            self.update_tree()
             time.sleep(self.QUEDELAY)
 
     def update_tree(self):
         if self.index_list is not None:
-            for i in range(len(self.index_list)):
-                print('hell0')  # self.tree.item(i).values=()
+            self.edit_item()
+        x = self.tree.get_children()
+        # for item in x:
+        #     self.tree.delete(item)
+        # for i in range(self.TREESIZE):
+        #     self.tree.insert("", 0, text=str(i), values=(self.index_list[i], self.num_dict[i], "3", "3", "3", "3", "3", "3", "3", "3", "3", "3"))
+
+    def edit_item(self):
+        x = self.tree.get_children()
+        i = 0
+        for item in x:
+            if i < len(self.index_list):
+                self.tree.item(item, values=(self.index_list[i], self.num_dict[i], "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"))
+                i += 1
 
 
 if __name__ == '__main__':

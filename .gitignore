@@ -1,0 +1,10 @@
+
+!.gitignore
+
+#git ignore
+
+__pycache__/*
+
+*.log
+
+
